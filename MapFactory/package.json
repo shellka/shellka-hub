@@ -1,0 +1,27 @@
+{
+  "name": "MapFactory",
+  "description": "Basic research project for tile maps.",
+  "keywords": [
+    "tile",
+    "maps",
+    "isometric"
+  ],
+  "author": "Leonid Brish",
+  "contributors": [],
+  "engine": "node >= 0.6.13",
+  "dependencies": {
+    "express": "2.5.x",
+    "socket.io": "0.9.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:shellka/shellka-hub.git"
+  },
+  "main": "app.js",
+  "version": "0.0.1",
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
