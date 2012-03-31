@@ -5,6 +5,9 @@ var PlayerEntity = me.ObjectEntity.extend(
 
         init:function (x, y, settings)
         {
+
+            this.name = "mainplayer";
+
             // call the constructor
             this.parent(x, y , settings);
             
@@ -109,7 +112,41 @@ var PlayerEntity = me.ObjectEntity.extend(
 					me.audio.play("sword_swipe");
 				}
 			}//end sword function
-			
+
+            // check for collision
+            res = me.game.collide(this);
+
+            if (res)
+            {
+                // if we collide with an enemy
+                if (res.type == me.game.ENEMY_OBJECT && (!this.flickering))
+                {
+                    if ((!this.isCurrentAnimation('strike-left')) && (!this.isCurrentAnimation('strike-right')) &&
+                        (!this.isCurrentAnimation('strike-up')) &&  (!this.isCurrentAnimation('strike-down')))
+                    {
+                        this.flicker(45);
+                        me.audio.play("link_hurt");
+                    }
+                } else if ( res.obj instanceof TowerEntity ) {
+
+                    //this.vel.x = this.vel.y = 0;
+                    this.setCurrentAnimation('stand-' + this.direction)
+                    {
+                        if	(this.direction == 'left')
+                            this.updateColRect(12,14,21,7);
+                        else if (this.direction == 'right')
+                            this.updateColRect(13,14,21,6);
+                        else if (this.direction == 'up')
+                            this.updateColRect(12,14,21,7);
+                        else if (this.direction == 'down')
+                            this.updateColRect(13,14,21,6);
+
+                        //return false;
+                    }
+
+                }
+            }
+
             // check & update player movement
             updated = this.updateMovement();
             
@@ -137,23 +174,7 @@ var PlayerEntity = me.ObjectEntity.extend(
 					}
 				}
             }
-		   
-			// check for collision
-			res = me.game.collide(this);
 
-			if (res) 
-			{
-				// if we collide with an enemy
-				if (res.type == me.game.ENEMY_OBJECT && (!this.flickering))
-				{	
-					if ((!this.isCurrentAnimation('strike-left')) && (!this.isCurrentAnimation('strike-right')) && 
-						(!this.isCurrentAnimation('strike-up')) &&  (!this.isCurrentAnimation('strike-down')))
-					{
-						this.flicker(45);
-						me.audio.play("link_hurt");
-					}
-				}
-			} 
             // update animation
             if (updated)
             {
@@ -174,6 +195,15 @@ var RupeeEntity = me.CollectableEntity.extend(
     init: function(x, y, settings) 
 	{
 		this.parent(x, y, settings);
+    },
+
+    onCollision: function ( res, obj ) {
+
+        if (!( obj instanceof CollisionTester )) {
+
+            this.parent( res, obj );
+
+        }
     },
 
 	onDestroyEvent : function ()
@@ -247,26 +277,28 @@ var EnemyEntity = me.ObjectEntity.extend(
 
     // call by the engine when colliding with another object
     // obj parameter corresponds to the other object (typically the player) touching this one
-    onCollision: function(res, obj) 
-	{
-        if (this.alive && (!this.flickering))
-		{		
-			if(this.life == 1)
-			{
-			this.alive = false;
-			this.collidable = false;
-			this.setCurrentAnimation("die");
-			this.flicker(10, function (){me.game.remove(this)});
-			me.audio.play("enemy_kill");
-			me.game.HUD.updateItemValue("xp", 1);
-			}
-			else
-				{
-				this.vel.x = -this.vel.x
-				this.flicker(35);
-				me.audio.play("enemy_hit");
-				this.life--;
-				}
+    onCollision: function(res, obj) {
+
+        if (!( obj instanceof CollisionTester )) {
+
+            if (this.alive && (!this.flickering)) {
+                if(this.life == 1)
+                {
+                this.alive = false;
+                this.collidable = false;
+                this.setCurrentAnimation("die");
+                this.flicker(10, function (){me.game.remove(this)});
+                me.audio.play("enemy_kill");
+                me.game.HUD.updateItemValue("xp", 1);
+                }
+                else
+                    {
+                    this.vel.x = -this.vel.x
+                    this.flicker(35);
+                    me.audio.play("enemy_hit");
+                    this.life--;
+                    }
+            }
         }
     },
 
@@ -322,6 +354,9 @@ var EnemyEntity = me.ObjectEntity.extend(
 
 var TowerEntity = me.ObjectEntity.extend(
 {
+
+    friendlyCollisionBox: new me.Rect( this.pos, this.width, this.height ),
+
     init: function(x, y, settings)
     {
         // define this here instead of tiled
@@ -335,13 +370,69 @@ var TowerEntity = me.ObjectEntity.extend(
         // make it a enemy object
         this.type = me.game.ACTION_OBJECT;
 
+        this.updateColRect(-50,116,-50,116);
+
+        this.friendlyCollisionBox.pos = this.pos;
+        this.friendlyCollisionBox.width = settings.spritewidth;
+        this.friendlyCollisionBox.height = settings.spritewidth;
+        this.friendlyCollisionBox.adjustSize( 0, settings.spritewidth, 0, settings.spritewidth );
+
+    },
+
+    /**
+     * collision detection
+     * @private
+     */
+    checkCollision : function(obj) {
+
+        var colBox = this.collisionBox;
+
+        if ( obj.type != me.game.ENEMY_OBJECT ) {
+
+            colBox = this.friendlyCollisionBox;
+
+        }
+
+        var res = colBox.collideVsAABB(obj.collisionBox);
+
+        if (res.x != 0 || res.y != 0) {
+            // notify the object
+            this.onCollision(res, obj);
+            // return the type (deprecated)
+            res.type = this.type;
+            // return a reference of the colliding object
+            res.obj  = this;
+            return res;
+        }
+        return null;
+
+    },
+
+    update: function () {
+
+        // check for collision
+        res = me.game.collide(this);
+
+        if (res)
+        {
+            // if we collide with an enemy
+            if (res.type == me.game.ENEMY_OBJECT)
+            {
+
+            }
+        }
+
     },
 
     // call by the engine when colliding with another object
     // obj parameter corresponds to the other object (typically the player) touching this one
     onCollision: function(res, obj)
     {
+        if (res)
+        {
 
+
+        }
     }
 });
 

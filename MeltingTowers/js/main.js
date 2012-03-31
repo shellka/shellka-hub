@@ -31,8 +31,6 @@ var jsApp	=
 	onload: function()
 	{
 
-        me.debug.renderHitBox = true;
-
 		// video
 		if (!me.video.init('jsapp', 640, 480, false, 1.0))
 		{
@@ -88,66 +86,13 @@ var jsApp	=
 		//me.sys.dirtyRegion = true;
         //me.debug.renderDirty = true;
 		// collision box debug
-		//me.debug.renderHitBox = true;
+		me.debug.renderHitBox = true;
                 
         // start the game 
         me.state.change(me.state.MENU);
 	}
 
 }; // jsApp
-
-/* the in game stuff*/
-var PlayScreen = me.ScreenObject.extend(
-{
-    init : function()
-    {
-        //call the parent constructor giving true
-        //as parameter, so that we use the update & draw functions
-        this.parent(true);
-
-        // enable the mouse
-        me.input.registerMouseEvent('mousedown', null, this.onMouseDown.bind( me.collisionMap ));
-
-    },
-
-    onResetEvent: function() 
-	{
-        me.levelDirector.loadLevel("area01");
-		me.audio.playTrack("overworld");
-        me.game.addHUD(0, 430, 640, 60);
-        me.game.HUD.addItem("score", new ScoreObject(620, 10));
-		me.game.HUD.addItem("xp", new ScoreObject(200, 10));
-        me.game.sort();
-	},
-
-	onDestroyEvent: function() 
-	{
-        me.game.disableHUD();
-		me.audio.stopTrack();
-    },
-
-    /**
-     * callback for mouse click
-     */
-    onMouseDown : function( ) {
-
-        console.log( 111 );
-//        var pos = new me.Vector2d( me.input.mouse.pos.x, me.input.mouse.pos.y );
-        //pos.x += me.input.mouse.offset.x;
-        //pos.y += me.input.mouse.offset.y;
-//        me.input.mouse.collisionBox = new me.Rect( pos, 10, 10);
-
-//        console.log( me.game.collide( me.input.mouse ));    //me.game.collide( me.input.mouse )
-//        console.log(me.input);
-
-        var tower = new TowerEntity(  10, 10, new Object( ));
-        me.game.add( tower );
-        me.game.sort();
-
-    }
-
-});
-
 
 // Title Screen
 
