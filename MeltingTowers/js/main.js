@@ -11,6 +11,7 @@ var g_resources =
 {name: "link_font",type: "image",  src: "data/sprite/link_font.png"},  
 {name: "link_title",type: "image",src: "data/sprite/link_title.png"},
 {name: "tank",type: "image",src: "data/sprite/Tank-16x16.png"},
+{name: "rocket",type: "image",src: "data/sprite/rocket-fly.png"},
 {name: "get_rupee", type: "audio",  src: "data/audio/", channel: 1},
 {name: "bank_rupee", type: "audio", src: "data/audio/", channel: 1},
 {name: "sword_swipe", type: "audio", src: "data/audio/", channel: 1},
@@ -31,8 +32,14 @@ var jsApp	=
 	onload: function()
 	{
 
+        // enable dirty rectangle
+        //me.sys.dirtyRegion = true;
+        //me.debug.renderDirty = true;
+        // collision box debug
+        me.debug.renderHitBox = true;
+
 		// video
-		if (!me.video.init('jsapp', 640, 480, false, 1.0))
+		if (!me.video.init('jsapp', 1200, 600, true, 1.0))
 		{
 			alert("Sorry but your browser does not support html 5 canvas.");
 			return;
@@ -59,6 +66,9 @@ var jsApp	=
 	
 	loaded: function ()
 	{
+        me.sys.fps = 50;
+        me.sys.enableWebGL = false;
+
 		// set the "Play/Ingame" Screen Object
 		me.state.set(me.state.MENU, new TitleScreen());
 
@@ -70,6 +80,7 @@ var jsApp	=
 
 		// add our player entity in the entity pool
 		me.entityPool.add("mainPlayer", PlayerEntity);
+        me.entityPool.add("SimpleShotEntity", SimpleShotEntity);
         me.entityPool.add("TowerEntity", TowerEntity);
 		me.entityPool.add("RupeeEntity", RupeeEntity);
 		me.entityPool.add("EnemyEntity", EnemyEntity);
@@ -81,14 +92,8 @@ var jsApp	=
         me.input.bindKey(me.input.KEY.DOWN,    "down");
         // bind X key, and disable key repeating (2nd parameter)
         me.input.bindKey(me.input.KEY.X,        "strike", true);
-        
-		// enable dirty rectangle
-		//me.sys.dirtyRegion = true;
-        //me.debug.renderDirty = true;
-		// collision box debug
-		me.debug.renderHitBox = true;
-                
-        // start the game 
+
+        // start the game
         me.state.change(me.state.MENU);
 	}
 

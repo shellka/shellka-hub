@@ -195,12 +195,6 @@
   <object name="EnemyEntity" x="891" y="880" width="173" height="40"/>
   <object name="EnemyEntity" x="1712" y="748" width="173" height="40"/>
   <object name="EnemyEntity" x="1658" y="262" width="173" height="40"/>
-  <object name="TowerEntity" x="849" y="284">
-   <properties>
-    <property name="image" value="tank"/>
-    <property name="spritewidth" value="16"/>
-   </properties>
-  </object>
  </objectgroup>
  <layer name="Houses - 1" width="60" height="30">
   <data encoding="base64">

@@ -18,7 +18,7 @@ var CollisionTester = Object.extend({
         this.collisionBox.width = this.size;
         this.collisionBox.height = this.size;
 
-        var collision = me.game.collisionMap.checkCollision(this.collisionBox, {x :1, y: 1 });
+        var collision = me.game.collisionMap.checkCollision(this.collisionBox, {x :0, y: 0 });
 
         if ( collision.xtile != undefined || collision.ytile != undefined )
             return false;

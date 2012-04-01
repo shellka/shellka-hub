@@ -199,7 +199,7 @@ var RupeeEntity = me.CollectableEntity.extend(
 
     onCollision: function ( res, obj ) {
 
-        if (!( obj instanceof CollisionTester )) {
+        if (( obj instanceof PlayerEntity )) {
 
             this.parent( res, obj );
 
@@ -279,25 +279,34 @@ var EnemyEntity = me.ObjectEntity.extend(
     // obj parameter corresponds to the other object (typically the player) touching this one
     onCollision: function(res, obj) {
 
-        if (!( obj instanceof CollisionTester )) {
+        if (!( obj instanceof CollisionTester ) && !( obj instanceof TowerEntity )) {
 
-            if (this.alive && (!this.flickering)) {
-                if(this.life == 1)
-                {
-                this.alive = false;
-                this.collidable = false;
-                this.setCurrentAnimation("die");
-                this.flicker(10, function (){me.game.remove(this)});
-                me.audio.play("enemy_kill");
-                me.game.HUD.updateItemValue("xp", 1);
-                }
-                else
-                    {
+            if (this.alive ) {
+
+                if(this.life == 1) {
+
+                    this.alive = false;
+                    this.collidable = false;
+                    this.setCurrentAnimation("die");
+                    this.flicker(10, function (){me.game.remove(this)});
+                    me.audio.play("enemy_kill");
+                    me.game.HUD.updateItemValue("xp", 1);
+
+                } else {
+
                     this.vel.x = -this.vel.x
                     this.flicker(35);
                     me.audio.play("enemy_hit");
                     this.life--;
-                    }
+
+                }
+
+                if ( this.alive && obj instanceof SimpleShotEntity ) {
+
+                    me.game.remove( obj );
+
+                }
+
             }
         }
     },
@@ -410,30 +419,48 @@ var TowerEntity = me.ObjectEntity.extend(
 
     update: function () {
 
-        // check for collision
         res = me.game.collide(this);
 
-        if (res)
-        {
-            // if we collide with an enemy
-            if (res.type == me.game.ENEMY_OBJECT)
-            {
+        // check for collision
+        if ( res != null && !this.flickering ) {
+
+            if ( res.type == me.game.ENEMY_OBJECT ) {
+
+                this.onEnemyInSight( res.obj );
 
             }
+
         }
+
+        this.parent();
 
     },
 
     // call by the engine when colliding with another object
     // obj parameter corresponds to the other object (typically the player) touching this one
-    onCollision: function(res, obj)
-    {
-        if (res)
-        {
+    onCollision: function(res, obj) {
 
+        // Срабатывает когда на него наступают (в синий квадрат)
+        //console.log( "Что то трогает пушку" )
 
-        }
+    },
+
+    /**
+     * fire event onEnemyInSight <br>
+     * @param {me.ObjectEntity} target enemy object
+     */
+    onEnemyInSight: function ( enemy ) {
+
+        console.log( "Shoting to enemy" );
+
+        this.flicker( 60 );
+
+        var shot = new SimpleShotEntity(  this.pos.x, this.pos.y - 24, {}, enemy );
+        me.game.add( shot, this.z + 100 );
+        me.game.sort();
+
     }
+
 });
 
 
